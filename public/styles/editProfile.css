@@ -1,0 +1,126 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  height: 100vh;
+}
+.editProfileWrapper {
+  width: 100%;
+  padding: 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  overflow-y: auto;
+}
+.updateProfilePic {
+  max-width: 40rem;
+  background-color: #efefef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-family: "Roboto", sans-serif;
+}
+.userInfoDp {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.profilePicDp img {
+  width: 2.5rem;
+  clip-path: circle(50%);
+}
+.userNameDp p {
+  font-size: 1.1rem;
+}
+.picUpdateBtn button,
+.updateUserName form input:last-child,
+.updateFullName form input:last-child,
+.updateUserBio form input:last-child {
+  width: fit-content;
+  padding: 7px 20px;
+  background-color: #0095f6;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  transition: all 200ms ease;
+}
+.picUpdateBtn button:hover,
+.updateUserName form :last-child:hover,
+.updateFullName form :last-child:hover,
+.updateUserBio form input:last-child:hover {
+  background-color: #057eda;
+}
+
+.editingPopUp {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+.updatingProfilePic {
+  background-color: white;
+  width: 22rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Roboto", sans-serif;
+  user-select: none;
+}
+.updatingProfilePic p:nth-child(1) {
+  font-size: 1.2rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #cccccc;
+}
+.updatingProfilePic h5 {
+  padding: 0.8rem;
+  border-bottom: 1px solid #cccccc;
+}
+.updatingProfilePic h5:nth-child(2) {
+  color: #0095f6;
+}
+.updatingProfilePic h5:nth-child(3) {
+  color: red;
+}
+.updatingProfilePic p:nth-child(4) {
+  font-size: 0.9rem;
+  padding: 0.8rem;
+}
+
+.updateUserName,
+.updateFullName,
+.updateUserBio {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.updateUserName form,
+.updateFullName form,
+.updateUserBio form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.updateUserName form :first-child,
+.updateFullName form :first-child,
+.updateUserBio form :first-child {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  width: 30rem;
+  border: 1px solid #cccccc;
+}
+
+.updateUserName form :last-child,
+.updateFullName form :last-child {
+    height: 2rem;
+}

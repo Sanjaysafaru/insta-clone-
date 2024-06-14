@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insta</title>
+    <link rel="stylesheet" href="/styles/entry.css" />
+  </head>
+  <body>
+    <div class="entryPageWrapper">
+      <div class="mainContainer">
+        <h1>Instagram</h1>
+        <p>Log In</p>
+        <form>
+          <input
+            type="text"
+            id="userName"
+            name="userName"
+            placeholder="User Name"
+          />
+          <input
+            type="text"
+            id="password"
+            name="password"
+            placeholder="Password"
+          />
+          <input type="submit" id="entryFormSubmit" value="Log In" disabled/>
+        </form>
+      </div>
+      <div class="subContainer">
+        <p>Don't have an account? <a href="/signUp">Sign Up</a></p>
+      </div>
+    </div>
+
+    <script>
+      let inputs = document.querySelectorAll(".mainContainer form input");
+      let signInBtn = document.querySelector(".mainContainer form #entryFormSubmit");
+
+      let inputValidator = {
+        userName: false,
+        password: false,
+      };
+
+      inputs.forEach((input) => {
+        input.addEventListener("input", (event) => {
+          let name = event.target.getAttribute("name");
+          if (event.target.value.length > 0) {
+            inputValidator[name] = true;
+          } else {
+            inputValidator[name] = false;
+          }
+          let allTrue = Object.keys(inputValidator).every((item) => {
+            return inputValidator[item] === true;
+          });
+          if (allTrue) {
+            signInBtn.disabled = false;
+          } else {
+            signInBtn.disabled = true;
+          }
+        });
+      });
+
+      document
+        .querySelector(".mainContainer form")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const formData = new FormData(event.target);
+          const data = {
+            userName: formData.get("userName"),
+            password: formData.get("password"),
+          };
+          try {
+            const response = await fetch("/user/signIn", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const jsonResponse = await response.json();
+            if (jsonResponse.data) {
+              // console.log(jsonResponse.data);
+              window.location.href = "home";
+            } else {
+              console.log("Unexpected response formazt:", jsonResponse);
+            }
+          } catch (error) {
+            console.error("Error during form submission:", error);
+          }
+        });
+    </script>
+  </body>
+</html>

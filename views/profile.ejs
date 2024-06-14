@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insta</title>
+    <link rel="stylesheet" href="/styles/navigationBar.css" />
+    <link rel="stylesheet" href="/styles/profile.css" />
+    <link rel="stylesheet" href="/styles/createPopUp.css" />
+    <link rel="stylesheet" href="/styles/showPostPopUp.css" />
+  </head>
+  <body>
+    <div class="navigationBar">
+      <div class="navTitle">
+        <h1>Instagram</h1>
+      </div>
+      <div class="navContents">
+        <div class="navPartA">
+          <div class="navHome" id="navHome">
+            <img src="/images/lightTheme/home.svg" alt="home" />
+            <p>Home</p>
+          </div>
+          <div class="navSearch" id="searchUser">
+            <img src="/images/lightTheme/search.svg" alt="search" />
+            <p>Search</p>
+            <form id="searchWithUserName" onsubmit="searchUserFunc(this)">
+              <input type="search" name="userName" />
+            </form>
+          </div>
+          <div class="navCreate" id="navCreate">
+            <img src="/images/lightTheme/create.svg" alt="create" />
+            <p>Create</p>
+          </div>
+          <div class="navProfile viewProfile selectedNav" id="viewUserProfile">
+            <img src="<%= user.profilePic%>" alt="home" />
+            <p>Profile</p>
+          </div>
+        </div>
+        <div class="navPartB">
+          <div class="navMore">
+            <img src="/images/lightTheme/more.svg" alt="more" />
+            <p>More</p>
+          </div>
+          <div class="moreOptions moreToggle">
+            <div class="optionsA">
+              <div class="optionSettings" id="editProfileOption">
+                <img src="/images/lightTheme/settings.svg" alt="settings" />
+                <p>Settings</p>
+              </div>
+              <div class="optionAppearence" id="optionAppearence">
+                <img src="/images/lightTheme/sun.svg" alt="sun" id="sun" />
+                <img
+                  src="/images/darkTheme/moon.svg"
+                  alt="moon"
+                  id="moon"
+                  style="display: none"
+                />
+                <p>Switch Appearance</p>
+              </div>
+            </div>
+            <div class="optionGap"></div>
+            <div class="optionsB">
+              <div class="optionLogOut" id="logOutOption">
+                <p>Log Out</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="contents">
+      <div class="profileWrapper">
+        <div class="userProfile">
+          <div class="profileInfo">
+            <div class="profilePic">
+              <img src="<%= user.profilePic%>" alt="profile image" />
+            </div>
+            <div class="profileDetails">
+              <div class="profileTitle">
+                <p class="userName"><%= user.userName %></p>
+                <div class="profileSettings">
+                  <button id="editProfileBtn">Edit Profile</button>
+                  <img src="/images/lightTheme/settings.svg" alt="" />
+                </div>
+              </div>
+              <div class="profileContent">
+                <div class="profilePostsCount">
+                  <h4 id="postsCount"></h4>
+                  <p>Posts</p>
+                </div>
+                <div class="profileFollowersCount" id="showFollowers">
+                  <h4 id="followers"></h4>
+                  <p>Followers</p>
+                </div>
+                <div class="profileFollowingCount" id="showFollowing">
+                  <h4 id="following"></h4>
+                  <p>Following</p>
+                </div>
+              </div>
+              <div class="profileUserName">
+                <p class="userName"><%= user.userName %></p>
+                <p class="userBio"><%= user.userBio %></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="userPosts">
+          <div class="userPostsTitle">
+            <p>POSTS</p>
+          </div>
+          <div id="userPosts"></div>
+        </div>
+      </div>
+    </div>
+    <div class="createPopUp">
+      <div class="createNewPost">
+        <h3>Create New Post</h3>
+        <form id="addPostForm">
+          <div id="image-preview" class="image-preview"></div>
+          <input type="file" id="fileInput" name="post" style="display: none" />
+          <button id="selectFileBtn">Select from computer</button>
+          <input
+            type="text"
+            id="tagLine"
+            name="tagLine"
+            placeholder="Tag Line"
+          />
+          <input type="submit" id="formSubmit" value="Create Post" />
+        </form>
+      </div>
+    </div>
+    <div class="showPostPopUp">
+      <div class="showPost">
+        <div class="showPostHead">
+          <div class="postOwner">
+            <img src="<%= user.profilePic%>" alt="profile photo" />
+            <h3><%= user.userName%></h3>
+          </div>
+          <div class="postSettings">
+            <img src="/images/lightTheme/dots.svg" alt="settings" />
+          </div>
+        </div>
+        <div class="postViewer"></div>
+        <div class="postFoot">
+          <img alt="like" />
+          <h4 class="showPostLikeCount">count</h4>
+          <h4 class="showPostLikeText">Likes</h4>
+        </div>
+      </div>
+    </div>
+    <div class="showPostSettingsPopUp">
+      <div class="showPostSettings">
+        <div class="showPostDelete"><h4>Delete</h4></div>
+        <div class="showPostCancel"><p>Cancel</p></div>
+      </div>
+    </div>
+  </body>
+  <script>
+    const userId = `<%= (user._id) %>`;
+    const userName = `<%= (user.userName) %>`;
+    //navigationBar
+    //home
+    document.getElementById("navHome").addEventListener("click", () => {
+      window.location.href = `/home`;
+    });
+    //search
+    const searchUser = document.getElementById("searchUser");
+    const searchUserP = document.querySelector("#searchUser p");
+    const searchUserForm = document.querySelector(
+      "#searchUser #searchWithUserName"
+    );
+    let searching = true;
+    searchUser.addEventListener("click", () => {
+      if (searching) {
+        searchUserP.style.display = "none";
+        searchUserForm.style.display = "block";
+        searching = false;
+      }
+    });
+    const searchUserFunc = async (that) => {
+      console.log(that.userName.value);
+      const userName = that.userName.value;
+      searchUserP.style.display = "block";
+      searchUserForm.style.display = "none";
+      searching = true;
+      try {
+        const response = await fetch(`/user/search`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userName }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse.data) {
+          console.log(jsonResponse.data);
+          window.location.href = `/home/search?userId=${encodeURIComponent(
+            jsonResponse.data.user._id
+          )}`;
+        } else {
+          console.log("Unexpected response format:", jsonResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    searchUserForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+    });
+    //create post
+    const createPopUp = document.querySelector(".createPopUp");
+    document.getElementById("navCreate").addEventListener("click", () => {
+      createPopUp.style.display = "flex";
+    });
+    const imagePreview = document.getElementById("image-preview");
+    const selectFileBtn = document.getElementById("selectFileBtn");
+    const fileInput = document.getElementById("fileInput");
+
+    selectFileBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      fileInput.click();
+    });
+    fileInput.addEventListener("input", (event) => {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const file = files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          imagePreview.innerHTML = "";
+          imagePreview.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document
+      .getElementById("addPostForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        try {
+          const response = await fetch("/post/addPost", {
+            method: "POST",
+            body: formData,
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const jsonResponse = await response.json();
+          if (jsonResponse.data) {
+            createPopUp.style.display = "none";
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      });
+    window.addEventListener("click", function (e) {
+      if (e.target == createPopUp) {
+        createPopUp.style.display = "none";
+      }
+    });
+    //profile
+    document.getElementById("viewUserProfile").addEventListener("click", () => {
+      window.location.href = "/home/profile";
+    });
+    //more
+    const navMore = document.querySelector(".navPartB .navMore");
+    const moreOptions = document.querySelector(".navPartB .moreOptions");
+    navMore.addEventListener("click", () => {
+      moreOptions.classList.toggle("moreToggle");
+    });
+    window.addEventListener("click", (e) => {
+      if (
+        e.target == document.querySelector("body") ||
+        e.target == document.querySelector(".navigationBar")
+      ) {
+        moreOptions.classList.toggle("moreToggle");
+      }
+    });
+    //settings
+    document
+      .getElementById("editProfileOption")
+      .addEventListener("click", () => {
+        window.location.href = "/profile/editProfile";
+      });
+    //logout
+    document
+      .getElementById("logOutOption")
+      .addEventListener("click", async (e) => {
+        e.preventDefault();
+        try {
+          const response = await fetch("/user/signOut", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const jsonResponse = await response.json();
+          if (jsonResponse.data) {
+            window.location.href = jsonResponse.data.redirectUrl;
+            // console.log(jsonResponse.data.redirectUrl);
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      });
+
+    //profile
+    //editButton
+    document.getElementById("editProfileBtn").addEventListener("click", () => {
+      window.location.href = "/profile/editProfile";
+    });
+    //posts count
+    const postsCount = async () => {
+      const response = await fetch("/post/postsCount", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const jsonResponse = await response.json();
+      // console.log(jsonResponse);
+      document.getElementById("postsCount").innerText =
+        jsonResponse.data.totalPosts;
+    };
+    postsCount();
+    //followers count
+    const followersCount = async () => {
+      const response = await fetch("/follow/followersCount", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const jsonResponse = await response.json();
+      document.getElementById("followers").innerText =
+        jsonResponse.data.totalFollowers;
+    };
+    followersCount();
+    //following count
+    const followingCount = async () => {
+      const response = await fetch("/follow/followingCount", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const jsonResponse = await response.json();
+      document.getElementById("following").innerText =
+        jsonResponse.data.totalFollowing;
+    };
+    followingCount();
+    //showing followers and following
+    document.getElementById("showFollowers").addEventListener("click", () => {
+      window.location.href = `/home/followers?userId=${encodeURIComponent(
+        userId
+      )}`;
+    });
+    document.getElementById("showFollowing").addEventListener("click", () => {
+      window.location.href = `/home/following?userId=${encodeURIComponent(
+        userId
+      )}`;
+    });
+    //user posts
+    const showPosts = async () => {
+      try {
+        const response = await fetch("/post/showPosts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse.data) {
+          for (i = 0; i < jsonResponse.data.posts.length; i++) {
+            const postDiv = document.createElement("div");
+            postDiv.innerHTML = `<img src=${jsonResponse.data.posts[i].post} alt="post" )/>`;
+            postDiv.setAttribute("id", "postDiv");
+            postDiv.setAttribute(
+              "onclick",
+              `showPost("${jsonResponse.data.posts[i]._id}")`
+            );
+            document.getElementById("userPosts").append(postDiv);
+          }
+        } else {
+          console.log("Unexpected response format:", jsonResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    showPosts();
+    const postViewer = document.querySelector(".postViewer");
+    const showPostPopUp = document.querySelector(".showPostPopUp");
+    let showCaseImgId;
+    const showPost = async (postId) => {
+      await findIfLiked(postId);
+      await likesCount(postId);
+      try {
+        const response = await fetch("/post/showPost", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse.data) {
+          showPostPopUp.style.display = "flex";
+          postViewer.innerHTML = `<img src=${jsonResponse.data.post.post} alt="post/ class="postViewerImg">`;
+          showCaseImgId = jsonResponse.data.post._id;
+          postViewer.parentElement.lastElementChild.firstElementChild.addEventListener(
+            "click",
+            async () => {
+              await likePost(postId);
+              await likesCount(postId);
+            }
+          );
+        } else {
+          console.log("Unexpected response format:", jsonResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    window.addEventListener("click", (e) => {
+      if (e.target == showPostPopUp) {
+        showPostPopUp.style.display = "none";
+      }
+    });
+    const showPostSettings = document.querySelector(".postSettings");
+    const showPostSettingsPopUp = document.querySelector(
+      ".showPostSettingsPopUp"
+    );
+    showPostSettings.addEventListener("click", () => {
+      showPostSettingsPopUp.style.display = "flex";
+    });
+    window.addEventListener("click", (e) => {
+      if (e.target == showPostSettingsPopUp) {
+        showPostSettingsPopUp.style.display = "none";
+      }
+    });
+    const showPostLikeImg = document.querySelector(".postFoot img");
+    const showPostLikeCount = document.querySelector(".showPostLikeCount");
+    const showPostLikeText = document.querySelector(".showPostLikeText");
+
+    const findIfLiked = async (postId) => {
+      try {
+        const likeResponse = await fetch("/like/findIfLiked", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!likeResponse.ok) {
+          throw new Error(`HTTP error! status: ${likeResponse.status}`);
+        }
+
+        const jsonLikeResponse = await likeResponse.json();
+        if (jsonLikeResponse) {
+          if (jsonLikeResponse.data.liked) {
+            showPostLikeImg.src = "/images/lightTheme/liked.svg";
+          } else {
+            showPostLikeImg.src = "/images/lightTheme/like.svg";
+          }
+        } else {
+          console.log("Unexpected response format:", jsonLikeResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    const likesCount = async (postId) => {
+      try {
+        const likeCountResponse = await fetch("/like/likeCount", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!likeCountResponse.ok) {
+          throw new Error(`HTTP error! status: ${likeCountResponse.status}`);
+        }
+        const jsonLikeCountResponse = await likeCountResponse.json();
+        const likesCount = jsonLikeCountResponse.data.likes.length;
+        if (jsonLikeCountResponse.data) {
+          if (likesCount > 0) {
+            if (likesCount == 1) {
+              showPostLikeCount.innerText = `${likesCount}`;
+              showPostLikeText.innerText = "Like";
+            } else {
+              showPostLikeCount.innerText = `${likesCount}`;
+              showPostLikeText.innerText = "Likes";
+            }
+          } else {
+            showPostLikeCount.innerText = "";
+            showPostLikeText.innerText = "";
+          }
+        } else {
+          console.log("Unexpected response format:", jsonLikeResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    const likePost = async (postId) => {
+      try {
+        const response = await fetch("/like/likePost", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse.data.alreadyLiked == null) {
+          showPostLikeImg.src = "/images/lightTheme/liked.svg";
+        } else {
+          showPostLikeImg.src = "/images/lightTheme/like.svg";
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    document
+      .querySelector(".showPostDelete")
+      .addEventListener("click", async () => {
+        postId = showCaseImgId;
+        console.log(postId);
+        try {
+          const response = await fetch("/post/deletePost", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ postId }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const jsonResponse = await response.json();
+          if (jsonResponse) {
+            showPostSettingsPopUp.style.display = "none";
+            showPostPopUp.style.display = "none";
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      });
+    document.querySelector(".showPostCancel").addEventListener("click", () => {
+      showPostSettingsPopUp.style.display = "none";
+    });
+  </script>
+</html>

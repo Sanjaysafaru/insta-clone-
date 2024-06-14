@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insta</title>
+    <link rel="stylesheet" href="/styles/follow.css">
+  </head>
+  <body>
+    <div class="followList">
+      <h3>Following</h3>
+      <ul id="followUl"></ul>
+    </div>
+    <script>
+      const userId = `<%= (user._id) %>`;
+      const showFollowing = async () => {
+        try {
+          const response = await fetch(`/follow/followingList`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userId }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const jsonResponse = await response.json();
+
+          if (jsonResponse) {
+            // console.log(jsonResponse.data.followingList);
+            for (i = 0; i < jsonResponse.data.followingList.length; i++) {
+              let listItem = document.createElement("li");
+              listItem.innerHTML = `<div class="followLi" > 
+                <div class="followProfilePic"><img src="${jsonResponse.data.followingList[i].profilePic}" alt="profile pic" /></div>
+                <div class="followUserName"><h4>${jsonResponse.data.followingList[i].userName}</h4><p>${jsonResponse.data.followingList[i].fullName}</p></div>
+                </div>`;
+              listItem.setAttribute(
+                "onclick",
+                `followSearch("${jsonResponse.data.followingList[i]._id}")`
+              );
+              document.getElementById("followUl").append(listItem);
+            }
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      };
+      showFollowing();
+      const followSearch = async(userId) => {
+        console.log(userId);
+        try {
+          const response = await fetch(`/follow/search`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userId }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const jsonResponse = await response.json();
+            searchedUserId = jsonResponse.data.user._id;
+            if (jsonResponse.data) {
+              console.log(jsonResponse.data);
+              window.location.href = `/home/search?userId=${encodeURIComponent(
+                jsonResponse.data.user._id
+              )}`;
+            } else {
+              console.log("Unexpected response format:", jsonResponse);
+            }
+          } catch (error) {
+            console.error("Error during form submission:", error);
+          }
+      }
+      // const findIfFollowed = async (userId) => {
+      //   const response = await fetch("/follow/findIfFollowed", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify({ userId }),
+      //   });
+      //   if (!response.ok) {
+      //     throw new Error(`HTTP error! status: ${response.status}`);
+      //   }
+      //   const jsonResponse = await response.json();
+      //   console.log(jsonResponse);
+      //   if (jsonResponse.data.followed) {
+      //     document.getElementById("followUser").innerText = "Following";
+      //     followed = true;
+      //   } else {
+      //     document.getElementById("followUser").innerText = "Follow";
+      //     followed = false;
+      //   }
+      // };
+    </script>
+  </body>
+</html>

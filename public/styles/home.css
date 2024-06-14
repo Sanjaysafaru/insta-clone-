@@ -1,0 +1,54 @@
+.homePageContents{
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+}
+.homePagePostContainer{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 3rem;
+}  
+.homePagePostUser{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.homePagePostUser img{
+    width: 2rem;
+    clip-path: circle(50%);
+}
+.homePagePost img{
+    width:28rem;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+.homePagePostLikeDiv{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.homePagePostLikeDiv img{
+    width: 1.5rem;
+}
+
+.homePageUser{
+    display: flex;
+    height: fit-content;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+.homePageUserProfilePic img{
+    width: 3rem;
+    clip-path: circle(50%);
+}
+.homePageUserInfo{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.homePageUserInfo .fullName{
+    font-size: 1.2rem;
+}

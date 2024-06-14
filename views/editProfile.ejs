@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insta</title>
+    <link rel="stylesheet" href="/styles/navigationBar.css" />
+    <link rel="stylesheet" href="/styles/editProfile.css" />
+    <link rel="stylesheet" href="/styles/createPopUp.css" />
+  </head>
+  <body>
+    <div class="navigationBar">
+      <div class="navTitle">
+        <h1>Instagram</h1>
+      </div>
+      <div class="navContents">
+        <div class="navPartA">
+          <div class="navHome" id="navHome">
+            <img src="/images/lightTheme/home.svg" alt="home" />
+            <p>Home</p>
+          </div>
+          <div class="navSearch" id="searchUser">
+            <img src="/images/lightTheme/search.svg" alt="search" />
+            <p>Search</p>
+            <form id="searchWithUserName" onsubmit="searchUserFunc(this)">
+              <input type="search" name="userName" />
+            </form>
+          </div>
+          <div class="navCreate" id="navCreate">
+            <img src="/images/lightTheme/create.svg" alt="create" />
+            <p>Create</p>
+          </div>
+          <div class="navProfile viewProfile selectedNav" id="viewUserProfile">
+            <img src="<%= user.profilePic%>" alt="home" />
+            <p>Profile</p>
+          </div>
+        </div>
+        <div class="navPartB">
+          <div class="navMore">
+            <img src="/images/lightTheme/more.svg" alt="more" />
+            <p>More</p>
+          </div>
+          <div class="moreOptions moreToggle">
+            <div class="optionsA">
+              <div class="optionSettings" id="editProfileOption">
+                <img src="/images/lightTheme/settings.svg" alt="settings" />
+                <p>Settings</p>
+              </div>
+              <div class="optionAppearence" id="optionAppearence">
+                <img src="/images/lightTheme/sun.svg" alt="sun" id="sun" />
+                <img
+                  src="/images/darkTheme/moon.svg"
+                  alt="moon"
+                  id="moon"
+                  style="display: none"
+                />
+                <p>Switch Appearance</p>
+              </div>
+            </div>
+            <div class="optionGap"></div>
+            <div class="optionsB">
+              <div class="optionLogOut" id="logOutOption">
+                <p>Log Out</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="editProfileWrapper">
+      <h2>Edit Profile</h2>
+      <div class="updateProfilePic">
+        <div class="userInfoDp">
+          <div class="profilePicDp">
+            <img src="<%= user.profilePic %>" alt="profile pic" />
+          </div>
+          <div class="userNameDp">
+            <h4><%= user.userName %></h4>
+            <p><%= user.fullName %></p>
+          </div>
+        </div>
+        <div class="picUpdateBtn">
+          <button>Change Photo</button>
+        </div>
+      </div>
+      <div class="updateUserName">
+        <h3>Username</h3>
+        <form id="changeUserNameForm">
+          <input type="text" name="userName" />
+          <input type="submit" value="Change User Name" />
+        </form>
+      </div>
+      <div class="updateUserBio">
+        <h3>Bio</h3>
+        <form id="changeUserBioForm">
+          <input type="text" name="userBio" />
+          <input type="submit" value="Change Bio" />
+        </form>
+      </div>
+      <div class="updateFullName">
+        <h3>Full Name</h3>
+        <form id="changeFullNameForm">
+          <input type="text" name="fullName" />
+          <input type="submit" value="Change Full Name" />
+        </form>
+      </div>
+    </div>
+    <div id="popup" class="editingPopUp">
+      <div class="updatingProfilePic">
+        <p>Change Profile Photo</p>
+        <h5 class="uploadPhotoh5">
+          Upload Photo
+          <form id="changePhotoForm">
+            <input
+              type="file"
+              id="fileInputDp"
+              name="profilePic"
+              style="display: none"
+            />
+            <input type="submit" id="changePhotoFormBtn" hidden />
+          </form>
+        </h5>
+        <h5 onclick="removeProfilePhoto()">Remove Current Photo</h5>
+        <p id="cancelBtn">Cancel</p>
+      </div>
+    </div>
+    <div class="createPopUp">
+      <div class="createNewPost">
+        <h3>Create New Post</h3>
+        <form id="addPostForm">
+          <div id="image-preview" class="image-preview"></div>
+          <input type="file" id="fileInput" name="post" style="display: none" />
+          <button id="selectFileBtn">Select from computer</button>
+          <input
+            type="text"
+            id="tagLine"
+            name="tagLine"
+            placeholder="Tag Line"
+          />
+          <input type="submit" id="formSubmit" value="Create Post" />
+        </form>
+      </div>
+    </div>
+    <script>
+      const userId = `<%= (user._id) %>`;
+      //navigationBar
+      //home
+      document.getElementById("navHome").addEventListener("click", () => {
+        window.location.href = `/home`;
+      });
+      //search
+      const searchUser = document.getElementById("searchUser");
+      const searchUserP = document.querySelector("#searchUser p");
+      const searchUserForm = document.querySelector(
+        "#searchUser #searchWithUserName"
+      );
+      let searching = true;
+      searchUser.addEventListener("click", () => {
+        if (searching) {
+          searchUserP.style.display = "none";
+          searchUserForm.style.display = "block";
+          searching = false;
+        }
+      });
+      const searchUserFunc = async (that) => {
+        console.log(that.userName.value);
+        const userName = that.userName.value;
+        searchUserP.style.display = "block";
+        searchUserForm.style.display = "none";
+        searching = true;
+        try {
+          const response = await fetch(`/user/search`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userName }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const jsonResponse = await response.json();
+          if (jsonResponse.data) {
+            console.log(jsonResponse.data);
+            window.location.href = `/home/search?userId=${encodeURIComponent(
+              jsonResponse.data.user._id
+            )}`;
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      };
+      searchUserForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+      });
+      //create post
+      const createPopUp = document.querySelector(".createPopUp");
+      document.getElementById("navCreate").addEventListener("click", () => {
+        createPopUp.style.display = "flex";
+      });
+      const imagePreview = document.getElementById("image-preview");
+      const selectFileBtn = document.getElementById("selectFileBtn");
+      const fileInput = document.getElementById("fileInput");
+
+      selectFileBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        fileInput.click();
+      });
+      fileInput.addEventListener("input", (event) => {
+        const files = event.target.files;
+        if (files.length > 0) {
+          const file = files[0];
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            const img = document.createElement("img");
+            img.src = e.target.result;
+            imagePreview.innerHTML = "";
+            imagePreview.appendChild(img);
+          };
+
+          reader.readAsDataURL(file);
+        }
+      });
+
+      document
+        .getElementById("addPostForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          try {
+            const response = await fetch("/post/addPost", {
+              method: "POST",
+              body: formData,
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const jsonResponse = await response.json();
+            if (jsonResponse.data) {
+              createPopUp.style.display = "none";
+            } else {
+              console.log("Unexpected response format:", jsonResponse);
+            }
+          } catch (error) {
+            console.error("Error during form submission:", error);
+          }
+        });
+      window.addEventListener("click", function (e) {
+        if (e.target == createPopUp) {
+          createPopUp.style.display = "none";
+        }
+      });
+      //profile
+      document
+        .getElementById("viewUserProfile")
+        .addEventListener("click", () => {
+          window.location.href = "/home/profile";
+        });
+      //more
+      const navMore = document.querySelector(".navPartB .navMore");
+      const moreOptions = document.querySelector(".navPartB .moreOptions");
+      navMore.addEventListener("click", () => {
+        moreOptions.classList.toggle("moreToggle");
+      });
+    
+      //settings
+      document
+        .getElementById("editProfileOption")
+        .addEventListener("click", () => {
+          window.location.href = "/profile/editProfile";
+        });
+      //logout
+      document
+        .getElementById("logOutOption")
+        .addEventListener("click", async (e) => {
+          e.preventDefault();
+          try {
+            const response = await fetch("/user/signOut", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const jsonResponse = await response.json();
+            if (jsonResponse.data) {
+              window.location.href = jsonResponse.data.redirectUrl;
+              // console.log(jsonResponse.data.redirectUrl);
+            } else {
+              console.log("Unexpected response format:", jsonResponse);
+            }
+          } catch (error) {
+            console.error("Error during form submission:", error);
+          }
+        });
+      const popup = document.getElementById("popup");
+      const changePhotoBtn = document.querySelector(".picUpdateBtn button");
+      const editingPopUp = document.querySelector(".editingPopUp");
+      const cancelBtn = document.getElementById("cancelBtn");
+
+      changePhotoBtn.addEventListener("click", () => {
+        editingPopUp.style.display = "flex";
+      });
+      cancelBtn.addEventListener("click", function () {
+        editingPopUp.style.display = "none";
+      });
+      window.addEventListener("click", function (e) {
+        if (e.target == popup) {
+          editingPopUp.style.display = "none";
+        }
+      });
+
+      const fileInputDp = document.getElementById("fileInputDp");
+      const changePhotoForm = document.getElementById("changePhotoForm");
+      const changePhotoFormBtn = document.getElementById("changePhotoFormBtn");
+
+      document.querySelector(".uploadPhotoh5").addEventListener("click", () => {
+        fileInputDp.click();
+      });
+      fileInputDp.addEventListener("change", () => {
+        if (fileInputDp.files.length > 0) {
+          console.log("submitting");
+          changePhotoFormBtn.click();
+        }
+      });
+
+      changePhotoForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        console.log("submitted");
+        const formData = new FormData(changePhotoForm);
+        try {
+          const response = await fetch("/user/changePhoto", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert("profile photo updated");
+            editingPopUp.style.display = "none";
+            // window.location.reload();
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      });
+
+      const removeProfilePhoto = async () => {
+        try {
+          const response = await fetch("/user/removePhoto", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const jsonResponse = await response.json();
+          if (jsonResponse) {
+            editingPopUp.style.display = "none";
+            // window.location.reload();
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      };
+
+      const changeUserNameForm = document.getElementById("changeUserNameForm");
+      const changeUserBioForm = document.getElementById("changeUserBioForm");
+      const changeFullNameForm = document.getElementById("changeFullNameForm");
+
+      changeUserNameForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = {
+          userName: formData.get("userName"),
+        };
+        try {
+          const response = await fetch("/user/changeUserName", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert("user name updated");
+            // window.location.reload();
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      });
+      changeUserBioForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = {
+          userBio: formData.get("userBio"),
+        };
+        try {
+          const response = await fetch("/user/changeUserName", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert("Bio updated");
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      });
+      changeFullNameForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = {
+          fullName: formData.get("fullName"),
+        };
+        try {
+          const response = await fetch("/user/changeFullName", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+          if (response.ok) {
+            alert("full name updated");
+            // window.location.reload();
+          } else {
+            alert("Error: " + result.message);
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      });
+    </script>
+  </body>
+</html>

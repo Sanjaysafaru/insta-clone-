@@ -1,0 +1,110 @@
+.contents{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.profileWrapper{
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    font-family: "Roboto", sans-serif;
+    padding: 2rem;
+}
+.userProfile{
+    display: flex;
+    flex-direction: column;
+}
+.profileInfo{
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2.5rem ;
+}
+.profilePic{
+    width: 20rem;
+    display: flex;
+    justify-content: center;
+}
+.profilePic img{
+    width: 10rem;
+    clip-path: circle(50%);
+}
+.profileDetails{
+    width: 100%;
+   display: flex; 
+   flex-direction: column;
+}
+.profileTitle {
+    display: flex;
+    gap: 3rem;
+    padding: 1rem 0;
+    font-size: 1.6rem;
+}
+.profileSettings{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem
+}
+.profileSettings img{
+    width: 2rem;
+}
+.profileSettings button{
+    padding: 0.3rem 1rem;
+    font-size: 1rem;
+    border: none;
+    background-color: #e0e0e0;
+    transition: all 200ms ease;
+    border-radius: 0.5rem;
+}
+.profileTitle button:hover{
+    background-color: #d5d5d5;
+}
+.profileContent{
+    display: flex;
+    gap: 2rem;
+    font-size: 1rem;
+}
+.profilePostsCount, .profileFollowersCount, .profileFollowingCount{
+    display: flex;
+    gap: 5px;
+}
+.profileUserName{
+    margin-top: 20px;
+    font-size: 1.3rem;
+}
+.profileUserName .userBio {
+    font-size: 0.9rem;
+}
+.profileAdd{
+padding:20px 50px ;
+}
+.profileAdd img{
+    width: 100px;
+    background-color: #7373730f;
+    clip-path: circle(50%);
+}
+.userPosts{
+    border-top: 1px solid #d9d9d9;
+}
+.userPostsTitle{
+    display: flex;
+    align-items:center ;
+    justify-content: center;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+}
+#userPosts{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+#postDiv{
+    width: 17.4rem;
+    height: 17.4rem;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+#postDiv img{
+    height: inherit;
+}

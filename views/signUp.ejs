@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insta</title>
+    <link rel="stylesheet" href="/styles/entry.css" />
+  </head>
+  <body>
+    <div class="entryPageWrapper">
+      <div class="mainContainer">
+        <h1>Instagram</h1>
+        <p>Sign Up</p>
+        <form>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="email address"
+          />
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            placeholder="Full Name"
+          />
+          <input
+            type="text"
+            id="userName"
+            name="userName"
+            placeholder="Username"
+          />
+          <input
+            type="text"
+            id="password"
+            name="password"
+            placeholder="Password"
+          />
+          <!-- <input type="file" id="profilePic" name="profilePic" /> -->
+          <input type="submit" id="entryFormSubmit" value="Sign Up" disabled />
+        </form>
+      </div>
+      <div class="subContainer">
+        <p>Have an account? <a href="/signIn">Log in</a></p>
+      </div>
+    </div>
+
+    <script>
+      let inputs = document.querySelectorAll(".mainContainer form input");
+      let signUpBtn = document.querySelector(
+        ".mainContainer form #entryFormSubmit"
+      );
+
+      let inputValidator = {
+        email: false,
+        fullName: false,
+        userName: false,
+        password: false,
+      };
+
+      inputs.forEach((input) => {
+        input.addEventListener("input", (event) => {
+          let name = event.target.getAttribute("name");
+          if (event.target.value.length > 0) {
+            inputValidator[name] = true;
+          } else {
+            inputValidator[name] = false;
+          }
+          let allTrue = Object.keys(inputValidator).every((item) => {
+            return inputValidator[item] === true;
+          });
+          if (allTrue) {
+            signUpBtn.disabled = false;
+          } else {
+            signUpBtn.disabled = true;
+          }
+        });
+      });
+
+      document
+        .querySelector(".mainContainer form")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const formData = new FormData(event.target);
+          const data = {
+            email: formData.get("email"),
+            fullName: formData.get("fullName"),
+            userName: formData.get("userName"),
+            password: formData.get("password"),
+          };
+          try {
+            const response = await fetch("/user/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response}`);
+            }
+
+            const jsonResponse = await response.json();
+            if (jsonResponse.data && jsonResponse.data.redirectUrl) {
+              window.location.href = jsonResponse.data.redirectUrl;
+            } else {
+              console.log("Unexpected response format:", jsonResponse);
+            }
+          } catch (error) {
+            console.error("Error during form submission:", error);
+          }
+        });
+    </script>
+  </body>
+</html>

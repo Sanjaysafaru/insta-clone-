@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insta</title>
+    <link rel="stylesheet" href="/styles/navigationBar.css" />
+    <link rel="stylesheet" href="/styles/home.css" />
+    <link rel="stylesheet" href="/styles/createPopUp.css" />
+    <link rel="stylesheet" href="/styles/showPostPopUp.css" />
+  </head>
+  <body>
+    <div class="navigationBar">
+      <div class="navTitle">
+        <h1>Instagram</h1>
+      </div>
+      <div class="navContents">
+        <div class="navPartA">
+          <div class="navHome selectedNav" id="navHome">
+            <img src="/images/lightTheme/home.svg" alt="home" />
+            <p>Home</p>
+          </div>
+          <div class="navSearch" id="searchUser">
+            <img src="/images/lightTheme/search.svg" alt="search" />
+            <p>Search</p>
+            <form id="searchWithUserName" onsubmit="searchUserFunc(this)">
+              <input type="search" name="userName" />
+            </form>
+          </div>
+          <div class="navCreate" id="navCreate">
+            <img src="/images/lightTheme/create.svg" alt="create" />
+            <p>Create</p>
+          </div>
+          <div class="navProfile viewProfile" id="viewUserProfile">
+            <img src="<%= user.profilePic%>" alt="home" />
+            <p>Profile</p>
+          </div>
+        </div>
+        <div class="navPartB">
+          <div class="navMore">
+            <img src="/images/lightTheme/more.svg" alt="more" />
+            <p>More</p>
+          </div>
+          <div class="moreOptions moreToggle">
+            <div class="optionsA">
+              <div class="optionSettings" id="editProfileOption">
+                <img src="/images/lightTheme/settings.svg" alt="settings" />
+                <p>Settings</p>
+              </div>
+              <div class="optionAppearence" id="optionAppearence">
+                <img src="/images/lightTheme/sun.svg" alt="sun" id="sun" />
+                <img
+                  src="/images/darkTheme/moon.svg"
+                  alt="moon"
+                  id="moon"
+                  style="display: none"
+                />
+                <p>Switch Appearance</p>
+              </div>
+            </div>
+            <div class="optionGap"></div>
+            <div class="optionsB">
+              <div class="optionLogOut" id="logOutOption">
+                <p>Log Out</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="homePageContents">
+      <div id="homePagePosts"></div>
+      <div class="homePageUser viewProfile">
+        <div class="homePageUserProfilePic">
+          <img src="<%= user.profilePic %>" alt="User ProfilePic" />
+        </div>
+        <div class="homePageUserInfo">
+          <h4 class="userName"><%= user.userName %></h4>
+          <p class="fullName"><%= user.fullName %></p>
+        </div>
+      </div>
+    </div>
+    <div class="createPopUp">
+      <div class="createNewPost">
+        <h3>Create New Post</h3>
+        <form id="addPostForm">
+          <div id="image-preview" class="image-preview"></div>
+          <input type="file" id="fileInput" name="post" style="display: none" />
+          <button id="selectFileBtn">Select from computer</button>
+          <input
+            type="text"
+            id="tagLine"
+            name="tagLine"
+            placeholder="Tag Line"
+          />
+          <input type="submit" id="formSubmit" value="Create Post" />
+        </form>
+      </div>
+    </div>
+    <div class="showPostPopUp">
+      <div class="showPost">
+        <div class="showPostHead">
+          <div class="postOwner">
+            <img id="showPostOwnerPhoto" alt="profile photo" />
+            <h3 id="showPostOwnerName"></h3>
+          </div>
+          <div class="postSettings">
+            <img />
+          </div>
+        </div>
+        <div class="postViewer"></div>
+        <div class="postFoot">
+          <img
+            src="/images/lightTheme/like.svg"
+            alt="like"
+            class="showPostLikeImg"
+          />
+          <h4 class="showPostLikeCount">count</h4>
+          <h4 class="showPostLikeText">Likes</h4>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const userId = `<%= (user._id) %>`;
+    const userName = `<%= (user.userName) %>`;
+    //navigation
+    //navigationBar
+    //home
+    document.getElementById("navHome").addEventListener("click", () => {
+      window.location.href = `/home`;
+    });
+    //search
+    const searchUser = document.getElementById("searchUser");
+    const searchUserP = document.querySelector("#searchUser p");
+    const searchUserForm = document.querySelector(
+      "#searchUser #searchWithUserName"
+    );
+    let searching = true;
+    searchUser.addEventListener("click", () => {
+      if (searching) {
+        searchUserP.style.display = "none";
+        searchUserForm.style.display = "block";
+        searching = false;
+      }
+    });
+    const searchUserFunc = async (that) => {
+      console.log(that.userName.value);
+      const userName = that.userName.value;
+      searchUserP.style.display = "block";
+      searchUserForm.style.display = "none";
+      searching = true;
+      try {
+        const response = await fetch(`/user/search`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userName }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse.data) {
+          console.log(jsonResponse.data);
+          window.location.href = `/home/search?userId=${encodeURIComponent(
+            jsonResponse.data.user._id
+          )}`;
+        } else {
+          console.log("Unexpected response format:", jsonResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    searchUserForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+    });
+    //create post
+    const createPopUp = document.querySelector(".createPopUp");
+    document.getElementById("navCreate").addEventListener("click", () => {
+      createPopUp.style.display = "flex";
+    });
+    const imagePreview = document.getElementById("image-preview");
+    const selectFileBtn = document.getElementById("selectFileBtn");
+    const fileInput = document.getElementById("fileInput");
+
+    selectFileBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      fileInput.click();
+    });
+    fileInput.addEventListener("input", (event) => {
+      const files = event.target.files;
+      if (files.length > 0) {
+        const file = files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          imagePreview.innerHTML = "";
+          imagePreview.appendChild(img);
+        };
+
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document
+      .getElementById("addPostForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        try {
+          const response = await fetch("/post/addPost", {
+            method: "POST",
+            body: formData,
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const jsonResponse = await response.json();
+          if (jsonResponse.data) {
+            createPopUp.style.display = "none";
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      });
+    window.addEventListener("click", function (e) {
+      if (e.target == createPopUp) {
+        createPopUp.style.display = "none";
+      }
+    });
+    //profile
+    document.getElementById("viewUserProfile").addEventListener("click", () => {
+      window.location.href = "/home/profile";
+    });
+    //more
+    const navMore = document.querySelector(".navPartB .navMore");
+    const moreOptions = document.querySelector(".navPartB .moreOptions");
+    navMore.addEventListener("click", () => {
+      moreOptions.classList.toggle("moreToggle");
+    });
+    //settings
+    document
+      .getElementById("editProfileOption")
+      .addEventListener("click", () => {
+        window.location.href = "/profile/editProfile";
+      });
+    //logout
+    document
+      .getElementById("logOutOption")
+      .addEventListener("click", async (e) => {
+        e.preventDefault();
+        try {
+          const response = await fetch("/user/signOut", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const jsonResponse = await response.json();
+          if (jsonResponse.data) {
+            window.location.href = jsonResponse.data.redirectUrl;
+            // console.log(jsonResponse.data.redirectUrl);
+          } else {
+            console.log("Unexpected response format:", jsonResponse);
+          }
+        } catch (error) {
+          console.error("Error during form submission:", error);
+        }
+      });
+    Array.from(document.getElementsByClassName("viewProfile")).forEach(
+      (element) => {
+        element.addEventListener("click", () => {
+          window.location.href = "/home/profile";
+        });
+      }
+    );
+
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("/post/fetchPosts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse) {
+          const posts = jsonResponse.data.posts;
+          for (i = posts.length; i > 0; i--) {
+            const user = await fetchUser(posts[i - 1].userId);
+            const homePagePostContainer = document.createElement("div");
+            homePagePostContainer.classList.add("homePagePostContainer");
+            const homePagePostUser = document.createElement("div");
+            homePagePostUser.classList.add("homePagePostUser");
+            homePagePostUser.innerHTML = `<img src="${user.profilePic}" alt="user Details">
+            <h4>${user.userName}</h4>`;
+            homePagePostUser.children[0].addEventListener("click", () => {
+              showPostUserProfile(user._id);
+            });
+            homePagePostUser.children[1].addEventListener("click", () => {
+              showPostUserProfile(user._id);
+            });
+
+            homePagePostContainer.append(homePagePostUser);
+            const homePagePost = document.createElement("div");
+            homePagePost.classList.add("homePagePost");
+            homePagePost.innerHTML = `<img src="${
+              posts[i - 1].post
+            }" alt="post"/>`;
+            homePagePost.setAttribute(
+              "onclick",
+              `showHomePagePost("${posts[i - 1]._id}", "${user._id}")`
+            );
+
+            homePagePostContainer.append(homePagePost);
+            const homePagePostLikeDiv = document.createElement("div");
+            homePagePostLikeDiv.classList.add("homePagePostLikeDiv");
+            homePagePostLikeDiv.innerHTML = `<img src = "/images/lightTheme/like.svg" alt="like"/>
+            <h4></h4><h4></h4> `;
+            let postId = posts[i - 1]._id;
+            homePagePostLikeDiv.firstChild.addEventListener(
+              "click",
+              async () => {
+                homePagePostLikeDiv.firstChild.src =
+                  homePagePostLikeDiv.firstChild.src.includes("liked")
+                    ? "/images/lightTheme/like.svg"
+                    : "/images/lightTheme/liked.svg";
+                await likePost(postId);
+                try {
+                  const likeCountResponse = await fetch("/like/likeCount", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ postId }),
+                  });
+
+                  if (!likeCountResponse.ok) {
+                    throw new Error(
+                      `HTTP error! status: ${likeCountResponse.status}`
+                    );
+                  }
+                  const jsonLikeCountResponse = await likeCountResponse.json();
+                  const likesCount = jsonLikeCountResponse.data.likes.length;
+                  if (jsonLikeCountResponse.data) {
+                    if (likesCount > 0) {
+                      if (likesCount == 1) {
+                        homePagePostLikeDiv.children[1].innerText = `${likesCount}`;
+                        homePagePostLikeDiv.children[2].innerText = "Like";
+                      } else {
+                        homePagePostLikeDiv.children[1].innerText = `${likesCount}`;
+                        homePagePostLikeDiv.children[2].innerText = "Likes";
+                      }
+                    } else {
+                      homePagePostLikeDiv.children[1].innerText = "";
+                      homePagePostLikeDiv.children[2].innerText = "";
+                    }
+                  } else {
+                    console.log(
+                      "Unexpected response format:",
+                      jsonLikeResponse
+                    );
+                  }
+                } catch (error) {
+                  console.error("Error during form submission:", error);
+                }
+              }
+            );
+
+            try {
+              const likeResponse = await fetch("/like/findIfLiked", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ postId }),
+              });
+
+              if (!likeResponse.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+
+              const jsonLikeResponse = await likeResponse.json();
+              if (jsonLikeResponse) {
+                if (jsonLikeResponse.data.liked) {
+                  homePagePostLikeDiv.firstElementChild.src =
+                    "/images/lightTheme/liked.svg";
+                } else {
+                  homePagePostLikeDiv.firstElementChild.src =
+                    "/images/lightTheme/like.svg";
+                }
+              } else {
+                console.log("Unexpected response format:", jsonLikeResponse);
+              }
+            } catch (error) {
+              console.error("Error during form submission:", error);
+            }
+            try {
+              const likeCountResponse = await fetch("/like/likeCount", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ postId }),
+              });
+
+              if (!likeCountResponse.ok) {
+                throw new Error(
+                  `HTTP error! status: ${likeCountResponse.status}`
+                );
+              }
+
+              const jsonLikeCountResponse = await likeCountResponse.json();
+              const likesCount = jsonLikeCountResponse.data.likes.length;
+              if (jsonLikeCountResponse) {
+                if (likesCount > 0) {
+                  if (likesCount == 1) {
+                    homePagePostLikeDiv.children[1].innerText = `${likesCount}`;
+                    homePagePostLikeDiv.children[2].innerText = "Like";
+                  } else {
+                    homePagePostLikeDiv.children[1].innerText = `${likesCount}`;
+                    homePagePostLikeDiv.children[2].innerText = "Likes";
+                  }
+                } else {
+                  homePagePostLikeDiv.children[1].innerText = "";
+                  homePagePostLikeDiv.children[2].innerText = "";
+                }
+              } else {
+                console.log("Unexpected response format:", jsonLikeResponse);
+              }
+            } catch (error) {
+              console.error("Error during form submission:", error);
+            }
+
+            homePagePostContainer.append(homePagePostLikeDiv);
+            const homePagePostTagLine = document.createElement("div");
+            homePagePostTagLine.innerHTML = `<p>${posts[i - 1].tagLine}</p>`;
+            homePagePostContainer.append(homePagePostTagLine);
+            document
+              .getElementById("homePagePosts")
+              .append(homePagePostContainer);
+          }
+        } else {
+          console.log("Unexpected response format:", jsonResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    fetchPosts();
+    const fetchUser = async (userId) => {
+      try {
+        const response = await fetch("/user/searchUserById", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse) {
+          return jsonResponse.data.user;
+        } else {
+          console.log("Unexpected response format:", jsonResponse);
+        }
+      } catch (error) {
+        console.log("Error during form submission:", error);
+      }
+    };
+    const postViewer = document.querySelector(".postViewer");
+    const showPostPopUp = document.querySelector(".showPostPopUp");
+    const showPostOwnerPhoto = document.getElementById("showPostOwnerPhoto");
+    const showPostOwnerName = document.getElementById("showPostOwnerName");
+    const showPostLikeImg = document.querySelector(".showPostLikeImg");
+    const showPostLikeCount = document.querySelector(".showPostLikeCount");
+    const showPostLikeText = document.querySelector(".showPostLikeText");
+
+    const showHomePagePost = async (postId, userId) => {
+      let resoponseUser, responsePost;
+      await findIfLiked(postId);
+      await likesCount(postId);
+      try {
+        responseUser = await fetch("/user/searchUserById", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (!responseUser.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+      try {
+        responsePost = await fetch("/post/showPost", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!responsePost.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+      const jsonResponseUser = await responseUser.json();
+      const jsonResponsePost = await responsePost.json();
+      if (jsonResponseUser && jsonResponsePost) {
+        showPostPopUp.style.display = "flex";
+        showPostOwnerPhoto.src = `${jsonResponseUser.data.user.profilePic}`;
+        showPostOwnerName.innerText = `${jsonResponseUser.data.user.userName}`;
+        postViewer.innerHTML = `<img src=${jsonResponsePost.data.post.post} alt="post/ class="postViewerImg">`;
+        postViewer.parentElement.firstElementChild.firstElementChild.addEventListener(
+          "click",
+          () => {
+            showPostUserProfile(jsonResponsePost.data.post.userId);
+          }
+        );
+        postViewer.parentElement.firstElementChild.children[1].addEventListener(
+          "click",
+          () => {
+            showPostUserProfile(jsonResponsePost.data.post.userId);
+          }
+        );
+        postViewer.parentElement.lastElementChild.firstElementChild.addEventListener(
+          "click",
+          async () => {
+            await likePost(jsonResponsePost.data.post._id);
+          }
+        );
+      } else {
+        console.error("Unexpected response format:", jsonResponse);
+      }
+    };
+    window.addEventListener("click", (e) => {
+      if (e.target == showPostPopUp) {
+        showPostPopUp.style.display = "none";
+      }
+    });
+    const findIfLiked = async (postId) => {
+      try {
+        const likeResponse = await fetch("/like/findIfLiked", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!likeResponse.ok) {
+          throw new Error(`HTTP error! status: ${likeResponse.status}`);
+        }
+
+        const jsonLikeResponse = await likeResponse.json();
+        if (jsonLikeResponse) {
+          if (jsonLikeResponse.data.liked) {
+            showPostLikeImg.src = "/images/lightTheme/liked.svg";
+          } else {
+            showPostLikeImg.src = "/images/lightTheme/like.svg";
+          }
+        } else {
+          console.log("Unexpected response format:", jsonLikeResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    const likesCount = async (postId) => {
+      try {
+        const likeCountResponse = await fetch("/like/likeCount", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!likeCountResponse.ok) {
+          throw new Error(`HTTP error! status: ${likeCountResponse.status}`);
+        }
+        const jsonLikeCountResponse = await likeCountResponse.json();
+        const likesCount = jsonLikeCountResponse.data.likes.length;
+        if (jsonLikeCountResponse.data) {
+          if (likesCount > 0) {
+            if (likesCount == 1) {
+              showPostLikeCount.innerText = `${likesCount}`;
+              showPostLikeText.innerText = "Like";
+            } else {
+              showPostLikeCount.innerText = `${likesCount}`;
+              showPostLikeText.innerText = "Likes";
+            }
+          } else {
+            showPostLikeCount.innerText = "";
+            showPostLikeText.innerText = "";
+          }
+        } else {
+          console.log("Unexpected response format:", jsonLikeResponse);
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    const likePost = async (postId) => {
+      try {
+        const response = await fetch("/like/likePost", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ postId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        if (jsonResponse.data.alreadyLiked == null) {
+          showPostLikeImg.src = "/images/lightTheme/liked.svg";
+        } else {
+          showPostLikeImg.src = "/images/lightTheme/like.svg";
+        }
+      } catch (error) {
+        console.error("Error during form submission:", error);
+      }
+    };
+    const showPostUserProfile = async (userId) => {
+      // console.log(userId);
+      window.location.href = `/home/search?userId=${encodeURIComponent(
+        userId
+      )}`;
+    };
+
+    // const sun = document.getElementById("sun");
+    // const moon = document.getElementById("moon");
+    // const navigationBar = document.querySelector(".navigationBar");
+    // const body = document.querySelector("body");
+    // const moreOptionsBox = document.querySelector(".moreOptions");
+    // let lightTheme;
+    // const switchTheme = (lightTheme) => {
+    //   if (lightTheme) {
+    //     sun.style.display = "block";
+    //     moon.style.display = "none";
+    //     body.style.backgroundColor = "#fff";
+    //     body.style.color = "#000";
+    //     navigationBar.style.backgroundColor = "#fff";
+    //     moreOptionsBox.style.backgroundColor = "#fff";
+    //     lightTheme = false;
+    //   } else {
+    //     sun.style.display = "none";
+    //     moon.style.display = "block";
+    //     body.style.backgroundColor = "#000";
+    //     body.style.color = "#fff";
+    //     navigationBar.style.backgroundColor = "#000";
+    //     moreOptionsBox.style.backgroundColor = "#262626";
+    //     lightTheme = true;
+    //   }
+    // };
+    // document
+    //   .getElementById("optionAppearence")
+    //   .addEventListener("click", () => {
+    //     if (lightTheme) {
+    //       console.log(body.style.backgroundColor);
+    //       lightTheme = false;
+    //     } else {
+    //       console.log(body.style.backgroundColor);
+    //       lightTheme = true;
+    //     }
+    //     switchTheme(lightTheme);
+    //   });
+    // const callSwitchTheme = () => {
+    //   if (body.style.backgroundColor === "rgb(255, 255, 255)") {
+    //     lightTheme = true;
+    //   } else {
+    //     lightTheme = false;
+    //   }
+    //   switchTheme(lightTheme);
+    // };
+    // callSwitchTheme();
+  </script>
+</html>
